@@ -373,3 +373,5 @@ TestResults/
 packages/
 node_modules/
 
+
+*.patch
