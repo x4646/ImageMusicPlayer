@@ -29,6 +29,11 @@ namespace ImageMusicPlayer
         private int slideshowDelay = 1500;
 
         /// <summary>
+        /// 用于判断幻灯片是否在播放中的任务引用。
+        /// </summary>
+        private Task? slideShowTask;
+
+        /// <summary>
         /// 管理图片相关操作的对象。
         /// </summary>
         private readonly IImageManager imageManager;
@@ -71,6 +76,7 @@ namespace ImageMusicPlayer
                     IPlaylistManager playlistManager)
         {
             InitializeComponent();
+            this.KeyPreview = true; // 让空格等快捷键在控件获得焦点时也能被窗体捕获
             this.imageManager = imageManager;
             this.imageManager.Init(imageViewer, UpdateStatus, 5);
             this.musicPlayer = musicPlayer;
@@ -109,7 +115,8 @@ namespace ImageMusicPlayer
 
         private void MainForm_Load(object? sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            // 初始化完成后先刷新一次状态栏
+            UpdateStatus();
         }
 
 
@@ -130,6 +137,43 @@ namespace ImageMusicPlayer
         {
             Debug.WriteLine("FavoritesChanged event triggered in MainForm.");
             // 如有需要，可更新收藏相关UI
+        }
+
+        // ------------------- 幻灯片播放控制（用于空格暂停/继续） ----------------------
+
+        private bool IsSlideShowRunning => slideShowTask != null && !slideShowTask.IsCompleted;
+
+        private void StartSlideShow()
+        {
+            if (IsSlideShowRunning) return;
+            // 在 UI 线程上启动（不要 Task.Run），避免跨线程操作控件
+            slideShowTask = RunSlideShowAsync();
+        }
+
+        private async Task RunSlideShowAsync()
+        {
+            try
+            {
+                await imageManager.StartSlideShowAsync(() => slideshowDelay);
+            }
+            finally
+            {
+                slideShowTask = null;
+            }
+        }
+
+        private void ToggleSlideShow()
+        {
+            if (IsSlideShowRunning)
+            {
+                imageManager.PauseSlideShow();
+            }
+            else
+            {
+                StartSlideShow();
+            }
+
+            UpdateStatus();
         }
 
         // ------------------- 菜单项事件处理 ----------------------
@@ -186,10 +230,9 @@ namespace ImageMusicPlayer
         /// <summary>
         /// 开始幻灯片菜单项点击事件处理。
         /// </summary>
-        private async void MenuStartSlide_Click(object? sender, EventArgs e)
+        private void MenuStartSlide_Click(object? sender, EventArgs e)
         {
-            await imageManager.StartSlideShowAsync(() => slideshowDelay);
-
+            StartSlideShow();
         }
 
         /// <summary>
@@ -198,6 +241,7 @@ namespace ImageMusicPlayer
         private void MenuPauseSlide_Click(object? sender, EventArgs e)
         {
             imageManager.PauseSlideShow();
+            UpdateStatus();
         }
 
         /// <summary>
@@ -518,6 +562,9 @@ namespace ImageMusicPlayer
                     return true;
                 case Keys.PageDown: // PageDown键，减少音量
                     AdjustVolume(-10);
+                    return true;
+                case Keys.Space: // 空格键：暂停 / 继续幻灯片
+                    ToggleSlideShow();
                     return true;
                 case Keys.F11: // F11键，切换全屏模式
                     ToggleFullScreen();
