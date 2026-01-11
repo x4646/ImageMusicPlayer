@@ -195,11 +195,28 @@ namespace ImageMusicPlayer
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.HighQuality;
 
+            // 缩放/拖拽交互时优先保证流畅度；停止后再用高质量插值保证清晰度
+            bool isInteracting = isDragging || zoomTimer.Enabled;
+            if (isInteracting)
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+                g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+            }
+            else
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.CompositingQuality = CompositingQuality.HighQuality;
+            }
+
             // 构造平移和缩放的矩阵变换
-            Matrix transform = new Matrix();
-            transform.Translate(panOffset.X, panOffset.Y);
-            transform.Scale(currentZoom, currentZoom);
-            g.Transform = transform;
+            using (Matrix transform = new Matrix())
+            {
+                transform.Translate(panOffset.X, panOffset.Y);
+                transform.Scale(currentZoom, currentZoom);
+                g.Transform = transform;
+            }
 
             // 如果没有滤镜及调节，直接绘制图片
             if (CurrentFilter == FilterType.None)
@@ -444,21 +461,21 @@ namespace ImageMusicPlayer
                 return;
 
             // 节流滚轮事件，避免过于频繁触发
-            if ((DateTime.Now - lastWheelEvent).TotalMilliseconds < 100)
+            if ((DateTime.Now - lastWheelEvent).TotalMilliseconds < 20)
                 return;
             lastWheelEvent = DateTime.Now;
 
             // 记录鼠标位置以便以鼠标为中心进行缩放
             lastMousePosForZoom = e.Location;
-            float zoomStep = 0.3f * currentZoom;
-            if (e.Delta > 0)
-            {
-                targetZoom = Math.Min(maxZoom, currentZoom + zoomStep);
-            }
-            else
-            {
-                targetZoom = Math.Max(minZoom, currentZoom - zoomStep);
-            }
+
+            // 使用倍率型（指数）缩放，手感更一致：每个滚轮刻度约 10% 缩放
+            // e.Delta 通常为 120 的倍数
+            float steps = e.Delta / 120f;
+            float factor = (float)Math.Pow(1.1d, steps);
+
+            // 以 targetZoom 为基准累计缩放，避免平滑缩放过程中手感“滞后”
+            float baseZoom = targetZoom;
+            targetZoom = Math.Max(minZoom, Math.Min(maxZoom, baseZoom * factor));
             mouseXRelative = (lastMousePosForZoom.X - panOffset.X) / currentZoom;
             mouseYRelative = (lastMousePosForZoom.Y - panOffset.Y) / currentZoom;
             if (!zoomTimer.Enabled)
