@@ -384,3 +384,4 @@ node_modules/
 /ImageMusicPlayer/ImageMusicPlayer.zip
 /ImageMusicPlayer/ImageMusicPlayer.zip
 /.gitignore
+*.diff
