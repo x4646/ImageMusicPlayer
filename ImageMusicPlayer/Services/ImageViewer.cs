@@ -10,21 +10,34 @@ namespace ImageMusicPlayer
 {
     public class ImageViewer : Panel , IImageViewer
     {
+        // 当前显示的图片对象
         private Image? image;
+        // 当前缩放比例
         private float currentZoom = 1.0f;
+        // 目标缩放比例（用于平滑动画过渡）
         private float targetZoom = 1.0f;
+        // 最小缩放比例
         private const float minZoom = 0.1f;
+        // 最大缩放比例
         private const float maxZoom = 5.0f;
+        // 缩放动画定时器
         private Timer zoomTimer;
+        // 是否正在拖动图片
         private bool isDragging = false;
+        // 上一次鼠标位置（用于拖动计算）
         private Point lastMousePosition;
+        // 缩放时鼠标位置（用于以鼠标为中心缩放）
         private PointF lastMousePosForZoom;
+        // 图片平移偏移量
         private PointF panOffset = new PointF(0, 0);
+        // 上一次滚轮事件时间（用于节流）
         private DateTime lastWheelEvent = DateTime.MinValue;
+        // 鼠标相对图片的X坐标（用于缩放中心计算）
         private float mouseXRelative;
+        // 鼠标相对图片的Y坐标（用于缩放中心计算）
         private float mouseYRelative;
 
-        // 新增滤镜调节相关属性
+        // 当前滤镜类型
         public FilterType CurrentFilter { get; set; } = FilterType.None;
 
         /// <summary>
@@ -32,9 +45,9 @@ namespace ImageMusicPlayer
         /// </summary>
         public float FilterIntensity { get; set; } = 1f;
 
-
         public event EventHandler ZoomChanged;
 
+        // 当前缩放比例只读属性
         public float Zoom => currentZoom;
 
         public ImageViewer()
@@ -93,6 +106,9 @@ namespace ImageMusicPlayer
             ZoomChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// 计算适合窗口的缩放比例，并居中图片
+        /// </summary>
         private void FitToWindow()
         {
             if (image == null || !IsImageValid(image))
@@ -121,6 +137,9 @@ namespace ImageMusicPlayer
             CenterImage();
         }
 
+        /// <summary>
+        /// 计算居中显示的平移偏移量
+        /// </summary>
         private void CenterImage()
         {
             if (image == null || !IsImageValid(image))
@@ -142,6 +161,9 @@ namespace ImageMusicPlayer
             RestrictPanOffset();
         }
 
+        /// <summary>
+        /// 限制平移偏移量，防止图片移出可视区域
+        /// </summary>
         private void RestrictPanOffset()
         {
             if (image == null || !IsImageValid(image))
@@ -177,15 +199,20 @@ namespace ImageMusicPlayer
             panOffset.Y = Math.Max(minY, Math.Min(maxY, panOffset.Y));
         }
 
+        /// <summary>
+        /// 缩放时根据鼠标位置调整平移偏移，使缩放中心保持在鼠标处
+        /// </summary>
         private void UpdatePanOffsetForZoom()
         {
             if (image == null || !IsImageValid(image))
                 return;
-            // 调整平移偏移，使得鼠标下的点在缩放前后位置保持一致
             panOffset.X = lastMousePosForZoom.X - mouseXRelative * currentZoom;
             panOffset.Y = lastMousePosForZoom.Y - mouseYRelative * currentZoom;
         }
 
+        /// <summary>
+        /// 重绘图片，包括缩放、平移和滤镜效果
+        /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -195,7 +222,7 @@ namespace ImageMusicPlayer
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.HighQuality;
 
-            // 缩放/拖拽交互时优先保证流畅度；停止后再用高质量插值保证清晰度
+            // 交互时优先流畅度，停止后优先清晰度
             bool isInteracting = isDragging || zoomTimer.Enabled;
             if (isInteracting)
             {
@@ -218,14 +245,13 @@ namespace ImageMusicPlayer
                 g.Transform = transform;
             }
 
-            // 如果没有滤镜及调节，直接绘制图片
+            // 绘制图片，支持滤镜
             if (CurrentFilter == FilterType.None)
             {
                 g.DrawImage(image, new Point(0, 0));
             }
             else
             {
-                // 根据滤镜、亮度、对比度构造颜色矩阵后绘制图片
                 ColorMatrix cm = GetColorMatrix();
                 using (ImageAttributes ia = new ImageAttributes())
                 {
@@ -300,11 +326,11 @@ namespace ImageMusicPlayer
         {
             return new ColorMatrix(new float[][]
             {
-        new float[]{1, 0, 0, 0, 0},
-        new float[]{0, 1, 0, 0, 0},
-        new float[]{0, 0, 1, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{brightness, brightness, brightness, 0, 1}
+                new float[]{1, 0, 0, 0, 0},
+                new float[]{0, 1, 0, 0, 0},
+                new float[]{0, 0, 1, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{brightness, brightness, brightness, 0, 1}
             });
         }
 
@@ -314,11 +340,11 @@ namespace ImageMusicPlayer
             float t = 0.5f * (1 - contrast);
             return new ColorMatrix(new float[][]
             {
-        new float[]{contrast, 0, 0, 0, 0},
-        new float[]{0, contrast, 0, 0, 0},
-        new float[]{0, 0, contrast, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{t, t, t, 0, 1}
+                new float[]{contrast, 0, 0, 0, 0},
+                new float[]{0, contrast, 0, 0, 0},
+                new float[]{0, 0, contrast, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{t, t, t, 0, 1}
             });
         }
 
@@ -327,11 +353,11 @@ namespace ImageMusicPlayer
         {
             return new ColorMatrix(new float[][]
             {
-        new float[]{0.213f + 0.787f * saturation, 0.213f - 0.213f * saturation, 0.213f - 0.213f * saturation, 0, 0},
-        new float[]{0.715f - 0.715f * saturation, 0.715f + 0.285f * saturation, 0.715f - 0.715f * saturation, 0, 0},
-        new float[]{0.072f - 0.072f * saturation, 0.072f - 0.072f * saturation, 0.072f + 0.928f * saturation, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{0, 0, 0, 0, 1}
+                new float[]{0.213f + 0.787f * saturation, 0.213f - 0.213f * saturation, 0.213f - 0.213f * saturation, 0, 0},
+                new float[]{0.715f - 0.715f * saturation, 0.715f + 0.285f * saturation, 0.715f - 0.715f * saturation, 0, 0},
+                new float[]{0.072f - 0.072f * saturation, 0.072f - 0.072f * saturation, 0.072f + 0.928f * saturation, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{0, 0, 0, 0, 1}
             });
         }
 
@@ -341,11 +367,11 @@ namespace ImageMusicPlayer
             // 这里采用较轻的复古色调（类似于淡褪的 sepia 效果）
             return new ColorMatrix(new float[][]
             {
-        new float[]{0.9f, 0, 0, 0, 0},
-        new float[]{0, 0.85f, 0, 0, 0},
-        new float[]{0, 0, 0.7f, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{0.1f, 0.05f, -0.05f, 0, 1}
+                new float[]{0.9f, 0, 0, 0, 0},
+                new float[]{0, 0.85f, 0, 0, 0},
+                new float[]{0, 0, 0.7f, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{0.1f, 0.05f, -0.05f, 0, 1}
             });
         }
 
@@ -355,11 +381,11 @@ namespace ImageMusicPlayer
             // 降低亮度和饱和度，并加入轻微蓝调
             return new ColorMatrix(new float[][]
             {
-        new float[]{0.8f, 0, 0, 0, 0},
-        new float[]{0, 0.8f, 0, 0, 0},
-        new float[]{0, 0, 0.8f, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{-0.1f, -0.1f, -0.1f, 0, 1}
+                new float[]{0.8f, 0, 0, 0, 0},
+                new float[]{0, 0.8f, 0, 0, 0},
+                new float[]{0, 0, 0.8f, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{-0.1f, -0.1f, -0.1f, 0, 1}
             });
         }
 
@@ -384,11 +410,11 @@ namespace ImageMusicPlayer
         {
             return new ColorMatrix(new float[][]
             {
-        new float[]{1, 0, 0, 0, 0},
-        new float[]{0, 1, 0, 0, 0},
-        new float[]{0, 0, 1, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{0.1f, 0.05f, -0.05f, 0, 1}
+                new float[]{1, 0, 0, 0, 0},
+                new float[]{0, 1, 0, 0, 0},
+                new float[]{0, 0, 1, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{0.1f, 0.05f, -0.05f, 0, 1}
             });
         }
 
@@ -397,11 +423,11 @@ namespace ImageMusicPlayer
         {
             return new ColorMatrix(new float[][]
             {
-        new float[]{1, 0, 0, 0, 0},
-        new float[]{0, 1, 0, 0, 0},
-        new float[]{0, 0, 1, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{-0.05f, -0.05f, 0.1f, 0, 1}
+                new float[]{1, 0, 0, 0, 0},
+                new float[]{0, 1, 0, 0, 0},
+                new float[]{0, 0, 1, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{-0.05f, -0.05f, 0.1f, 0, 1}
             });
         }
 
@@ -410,11 +436,11 @@ namespace ImageMusicPlayer
         {
             return new ColorMatrix(new float[][]
             {
-        new float[]{1, 0, 0, 0, 0},
-        new float[]{0, 1, 0, 0, 0},
-        new float[]{0, 0, 1, 0, 0},
-        new float[]{0, 0, 0, 1, 0},
-        new float[]{-0.05f, -0.05f, -0.05f, 0, 1}
+                new float[]{1, 0, 0, 0, 0},
+                new float[]{0, 1, 0, 0, 0},
+                new float[]{0, 0, 1, 0, 0},
+                new float[]{0, 0, 0, 1, 0},
+                new float[]{-0.05f, -0.05f, -0.05f, 0, 1}
             });
         }
 
@@ -437,6 +463,9 @@ namespace ImageMusicPlayer
             return result;
         }
 
+        /// <summary>
+        /// 缩放动画定时器事件，平滑过渡currentZoom到targetZoom
+        /// </summary>
         private void ZoomTimer_Tick(object? sender, EventArgs e)
         {
             float diff = targetZoom - currentZoom;
@@ -455,6 +484,9 @@ namespace ImageMusicPlayer
             ZoomChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// 鼠标滚轮事件，支持以鼠标为中心缩放
+        /// </summary>
         private void ImageViewer_MouseWheel(object? sender, MouseEventArgs e)
         {
             if (image == null || !IsImageValid(image))
@@ -469,7 +501,6 @@ namespace ImageMusicPlayer
             lastMousePosForZoom = e.Location;
 
             // 使用倍率型（指数）缩放，手感更一致：每个滚轮刻度约 10% 缩放
-            // e.Delta 通常为 120 的倍数
             float steps = e.Delta / 120f;
             float factor = (float)Math.Pow(1.1d, steps);
 
@@ -482,6 +513,9 @@ namespace ImageMusicPlayer
                 zoomTimer.Start();
         }
 
+        /// <summary>
+        /// 鼠标按下事件，支持拖动图片
+        /// </summary>
         private void ImageViewer_MouseDown(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -492,6 +526,9 @@ namespace ImageMusicPlayer
             }
         }
 
+        /// <summary>
+        /// 鼠标移动事件，拖动图片时更新偏移
+        /// </summary>
         private void ImageViewer_MouseMove(object? sender, MouseEventArgs e)
         {
             if (isDragging)
@@ -504,6 +541,9 @@ namespace ImageMusicPlayer
             }
         }
 
+        /// <summary>
+        /// 鼠标释放事件，结束拖动
+        /// </summary>
         private void ImageViewer_MouseUp(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -513,6 +553,9 @@ namespace ImageMusicPlayer
             }
         }
 
+        /// <summary>
+        /// 控件尺寸变化时自适应图片
+        /// </summary>
         private void ImageViewer_Resize(object? sender, EventArgs e)
         {
             if (image != null && IsImageValid(image))
@@ -522,6 +565,9 @@ namespace ImageMusicPlayer
             }
         }
 
+        /// <summary>
+        /// 判断图片对象是否有效
+        /// </summary>
         private bool IsImageValid(Image img)
         {
             if (img == null)
@@ -537,6 +583,80 @@ namespace ImageMusicPlayer
             }
         }
 
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (image != null)
+                {
+                    image.Dispose();
+                }
+                zoomTimer?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+        /// </summary>
+        private void ImageViewer_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                PointF delta = new PointF(e.X - lastMousePosition.X, e.Y - lastMousePosition.Y);
+                panOffset = new PointF(panOffset.X + delta.X, panOffset.Y + delta.Y);
+                lastMousePosition = e.Location;
+                RestrictPanOffset();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// 鼠标释放事件，结束拖动
+        /// </summary>
+        private void ImageViewer_MouseUp(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isDragging = false;
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// 控件尺寸变化时自适应图片
+        /// </summary>
+        private void ImageViewer_Resize(object? sender, EventArgs e)
+        {
+            if (image != null && IsImageValid(image))
+            {
+                FitToWindow();
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// 判断图片对象是否有效
+        /// </summary>
+        private bool IsImageValid(Image img)
+        {
+            if (img == null)
+                return false;
+            try
+            {
+                int width = img.Width;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
