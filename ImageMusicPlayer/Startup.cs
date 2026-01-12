@@ -1,4 +1,4 @@
-﻿// Startup.cs
+// Startup.cs
 using ImageMusicPlayer.DataAccess;
 using ImageMusicPlayer.Interfaces;
 using ImageMusicPlayer.Models;

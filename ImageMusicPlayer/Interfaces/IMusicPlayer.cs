@@ -3,78 +3,78 @@ using System.Collections.Generic;
 namespace ImageMusicPlayer.Interfaces
 {
     /// <summary>
-    /// ÒôÀÖ²¥·ÅÆ÷½Ó¿Ú
+    /// éŸ³ä¹æ’­æ”¾å™¨æ¥å£
     /// </summary>
     public interface IMusicPlayer
     {
         /// <summary>
-        /// ´Óµ±Ç°²¥·ÅÁĞ±íÖĞÒÆ³ıµ±Ç°ÕıÔÚ²¥·ÅµÄÒôÀÖ¡£
+        /// ä»å½“å‰æ’­æ”¾åˆ—è¡¨ä¸­ç§»é™¤å½“å‰æ­£åœ¨æ’­æ”¾çš„éŸ³ä¹ã€‚
         /// </summary>
         void RemoveCurrentFromPlaylist();
 
         /// <summary>
-        /// Í£Ö¹²¥·Å£¨²¢ÊÍ·Å×ÊÔ´£©¡£
+        /// åœæ­¢æ’­æ”¾ï¼ˆå¹¶é‡Šæ”¾èµ„æºï¼‰ã€‚
         /// </summary>
         void Stop();
 
         /// <summary>
-        /// Ìø×ªµ½Ö¸¶¨Ë÷ÒıµÄÒôÀÖÎÄ¼ş½øĞĞ²¥·Å¡£
+        /// è·³è½¬åˆ°æŒ‡å®šç´¢å¼•çš„éŸ³ä¹æ–‡ä»¶è¿›è¡Œæ’­æ”¾ã€‚
         /// </summary>
-        /// <param name="index">²¥·ÅÁĞ±íÖĞµÄË÷Òı</param>
+        /// <param name="index">æ’­æ”¾åˆ—è¡¨ä¸­çš„ç´¢å¼•</param>
         void PlayAt(int index);
 
         /// <summary>
-        /// µ±Ç°²¥·ÅÂ·¾¶
+        /// å½“å‰æ’­æ”¾è·¯å¾„
         /// </summary>
         string? CurrentPath { get; }
 
         /// <summary>
-        /// ²¥·ÅÄ£Ê½
+        /// æ’­æ”¾æ¨¡å¼
         /// </summary>
         PlayMode Mode { get; set; }
 
         /// <summary>
-        /// ²¥·ÅÁĞ±í
+        /// æ’­æ”¾åˆ—è¡¨
         /// </summary>
         List<string> PlayPathList { get; set; }
 
         /// <summary>
-        /// ²¥·ÅÖ¸¶¨Â·¾¶µÄÒôÀÖ
+        /// æ’­æ”¾æŒ‡å®šè·¯å¾„çš„éŸ³ä¹
         /// </summary>
-        /// <param name="path">ÒôÀÖÎÄ¼şÂ·¾¶</param>
+        /// <param name="path">éŸ³ä¹æ–‡ä»¶è·¯å¾„</param>
         void Play(string path);
 
         /// <summary>
-        /// ¼ÓÔØÉÏ´Î²¥·ÅµÄÒôÀÖ
+        /// åŠ è½½ä¸Šæ¬¡æ’­æ”¾çš„éŸ³ä¹
         /// </summary>
-        /// <returns>ÉÏ´Î²¥·ÅµÄÒôÀÖÂ·¾¶</returns>
+        /// <returns>ä¸Šæ¬¡æ’­æ”¾çš„éŸ³ä¹è·¯å¾„</returns>
         string? LoadLastPlayed();
 
         /// <summary>
-        /// ÔİÍ£²¥·Å
+        /// æš‚åœæ’­æ”¾
         /// </summary>
         void Pause();
 
         /// <summary>
-        /// ²¥·ÅÏÂÒ»Ê×ÒôÀÖ
+        /// æ’­æ”¾ä¸‹ä¸€é¦–éŸ³ä¹
         /// </summary>
         void PlayNext();
 
         /// <summary>
-        /// ²¥·ÅÉÏÒ»Ê×ÒôÀÖ
+        /// æ’­æ”¾ä¸Šä¸€é¦–éŸ³ä¹
         /// </summary>
         void PlayPrevious();
 
         /// <summary>
-        /// »ñÈ¡ÒôÁ¿
+        /// è·å–éŸ³é‡
         /// </summary>
-        /// <returns>ÒôÁ¿Öµ</returns>
+        /// <returns>éŸ³é‡å€¼</returns>
         int GetVolume();
 
         /// <summary>
-        /// ÉèÖÃÒôÁ¿
+        /// è®¾ç½®éŸ³é‡
         /// </summary>
-        /// <param name="value">ÒôÁ¿Öµ</param>
+        /// <param name="value">éŸ³é‡å€¼</param>
         void SetVolume(int value);
     }
 }

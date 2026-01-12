@@ -1,4 +1,4 @@
-﻿namespace ImageMusicPlayer
+namespace ImageMusicPlayer
 {
     public enum PlayMode
     {

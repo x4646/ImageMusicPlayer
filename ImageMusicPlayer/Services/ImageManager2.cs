@@ -20,13 +20,13 @@ namespace ImageMusicPlayer.Services
         private int imageIndex = 0;
         private ImageCache imageCache;
         private CancellationTokenSource slideShowCTS;
-        private DateTime lastSwitchTime = DateTime.MinValue; // ÓÃÓÚ·À¶¶
-        private const int SwitchDebounceMs = 100; // ·À¶¶¼ä¸ô
-        private int targetIndex = 0; // Ä¿±êË÷Òı£¬ÓÃÓÚ´¦Àí¿ìËÙÇĞ»»
+        private DateTime lastSwitchTime = DateTime.MinValue; // ç”¨äºé˜²æŠ–
+        private const int SwitchDebounceMs = 100; // é˜²æŠ–é—´éš”
+        private int targetIndex = 0; // ç›®æ ‡ç´¢å¼•ï¼Œç”¨äºå¤„ç†å¿«é€Ÿåˆ‡æ¢
 
-        // ¿ØÖÆÍ¼Æ¬ÇĞ»»µÄ²¢·¢°²È«
+        // æ§åˆ¶å›¾ç‰‡åˆ‡æ¢çš„å¹¶å‘å®‰å…¨
         private SemaphoreSlim switchSemaphore = new SemaphoreSlim(1, 1);
-        // ÓÃÓÚ±£»¤ imagePaths ¼¯ºÏ
+        // ç”¨äºä¿æŠ¤ imagePaths é›†åˆ
         private readonly object imagePathsLock = new object();
 
         private int pageType = 1; // 1: next ; -1: last 
@@ -44,7 +44,7 @@ namespace ImageMusicPlayer.Services
             imageCache.loadImageFunc = LoadImageFromFile;
         }
 
-        #region Í¼Æ¬¼ÓÔØ
+        #region å›¾ç‰‡åŠ è½½
 
         public async Task SelectAndLoadFromFolderAsync()
         {
@@ -74,7 +74,7 @@ namespace ImageMusicPlayer.Services
 
             lock (imagePathsLock)
             {
-                // Ë¢ĞÂ»º´æ£¬È·±£ºóĞø»º´æË÷ÒıÓë imagePaths ¶ÔÓ¦
+                // åˆ·æ–°ç¼“å­˜ï¼Œç¡®ä¿åç»­ç¼“å­˜ç´¢å¼•ä¸ imagePaths å¯¹åº”
                 ClearCache();
                 var unique = new HashSet<string>(imagePaths, StringComparer.OrdinalIgnoreCase);
                 for (int i = newFiles.Count - 1; i >= 0; i--)
@@ -93,7 +93,7 @@ namespace ImageMusicPlayer.Services
         {
             using (OpenFileDialog dialog = new())
             {
-                dialog.Filter = "Í¼Æ¬ÎÄ¼ş|*.jpg;*.jpeg;*.png";
+                dialog.Filter = "å›¾ç‰‡æ–‡ä»¶|*.jpg;*.jpeg;*.png";
                 dialog.Multiselect = true;
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -115,7 +115,7 @@ namespace ImageMusicPlayer.Services
                             imageIndex = 0;
                     }
                     imageCache.Init(imagePaths);
-                    pageType = 0; // µ±Ç°Í¼Æ¬
+                    pageType = 0; // å½“å‰å›¾ç‰‡
                     await ShowImageAsync();
                 }
             }
@@ -172,7 +172,7 @@ namespace ImageMusicPlayer.Services
                 {
                     imageIndex = 0;
                     updateStatus?.Invoke();
-                    Debug.WriteLine($"´ÓÎÄ¼ş¼Ğ {folderPath} É¾³ıÁËÍ¼Æ¬¡£µ±Ç°ÎŞÍ¼Æ¬¡£");
+                    Debug.WriteLine($"ä»æ–‡ä»¶å¤¹ {folderPath} åˆ é™¤äº†å›¾ç‰‡ã€‚å½“å‰æ— å›¾ç‰‡ã€‚");
                     viewer.LoadImage(null);
                     return;
                 }
@@ -191,7 +191,7 @@ namespace ImageMusicPlayer.Services
                 }
             }
             _ = ShowImageAsync();
-            Debug.WriteLine($"´ÓÎÄ¼ş¼Ğ {folderPath} É¾³ıÍ¼Æ¬Íê³É¡£");
+            Debug.WriteLine($"ä»æ–‡ä»¶å¤¹ {folderPath} åˆ é™¤å›¾ç‰‡å®Œæˆã€‚");
             return;
         }
 
@@ -211,7 +211,7 @@ namespace ImageMusicPlayer.Services
                         imageIndex = 0;
                         updateStatus?.Invoke();
                         viewer.LoadImage(null);
-                        Debug.WriteLine($"´ÓÍ¼Æ¬ÁĞ±íÖĞÒÆ³ıÁËÍ¼Æ¬£º{imagePath}");
+                        Debug.WriteLine($"ä»å›¾ç‰‡åˆ—è¡¨ä¸­ç§»é™¤äº†å›¾ç‰‡ï¼š{imagePath}");
                         return null;
                     }
                     else if (imageIndex >= imagePaths.Count)
@@ -220,22 +220,22 @@ namespace ImageMusicPlayer.Services
                     }
                 }
                 _ = ShowImageAsync();
-                Debug.WriteLine($"´ÓÍ¼Æ¬ÁĞ±íÖĞÒÆ³ıÁËÍ¼Æ¬£º{imagePath}");
+                Debug.WriteLine($"ä»å›¾ç‰‡åˆ—è¡¨ä¸­ç§»é™¤äº†å›¾ç‰‡ï¼š{imagePath}");
             }
             return null;
         }
 
-        // ½«É¾³ıµ±Ç°Í¼Æ¬·½·¨¸ÄÎªÒì²½
+        // å°†åˆ é™¤å½“å‰å›¾ç‰‡æ–¹æ³•æ”¹ä¸ºå¼‚æ­¥
         public async Task DeleteCurrentImageAsync()
         {
             lock (imagePathsLock)
             {
                 if (imagePaths.Count == 0 || imageIndex < 0 || imageIndex >= imagePaths.Count)
                 {
-                    Debug.WriteLine($"DeleteCurrentImage: Í¼Æ¬ÁĞ±íÎª¿Õ»òË÷ÒıÎŞĞ§£¬imageIndex={imageIndex}, imagePaths.Count={imagePaths.Count}");
+                    Debug.WriteLine($"DeleteCurrentImage: å›¾ç‰‡åˆ—è¡¨ä¸ºç©ºæˆ–ç´¢å¼•æ— æ•ˆï¼ŒimageIndex={imageIndex}, imagePaths.Count={imagePaths.Count}");
                     return;
                 }
-                Debug.WriteLine($"DeleteCurrentImage: ´ÓÍ¼Æ¬ÁĞ±íÖĞÒÆ³ı£¬Path={imagePaths[imageIndex]}");
+                Debug.WriteLine($"DeleteCurrentImage: ä»å›¾ç‰‡åˆ—è¡¨ä¸­ç§»é™¤ï¼ŒPath={imagePaths[imageIndex]}");
                 imagePaths.RemoveAt(imageIndex);
             }
             ClearCache();
@@ -246,7 +246,7 @@ namespace ImageMusicPlayer.Services
                     imageIndex = 0;
                     updateStatus?.Invoke();
                     viewer.LoadImage(null);
-                    Debug.WriteLine($"DeleteCurrentImage: Í¼Æ¬ÁĞ±íÎª¿Õ£¬imageIndex={imageIndex}");
+                    Debug.WriteLine($"DeleteCurrentImage: å›¾ç‰‡åˆ—è¡¨ä¸ºç©ºï¼ŒimageIndex={imageIndex}");
                     return;
                 }
                 else if (imageIndex >= imagePaths.Count)
@@ -259,7 +259,7 @@ namespace ImageMusicPlayer.Services
 
         #endregion
 
-        #region Í¼Æ¬ÏÔÊ¾ÓëÔ¤¼ÓÔØ
+        #region å›¾ç‰‡æ˜¾ç¤ºä¸é¢„åŠ è½½
 
         private async Task ShowImageAsync()
         {
@@ -270,7 +270,7 @@ namespace ImageMusicPlayer.Services
                 {
                     viewer.LoadImage(null);
                     updateStatus?.Invoke();
-                    Debug.WriteLine($"ShowImageAsync: Í¼Æ¬ÁĞ±íÎª¿Õ»òË÷ÒıÎŞĞ§£¬imageIndex={imageIndex}, imagePaths.Count={imagePaths.Count}");
+                    Debug.WriteLine($"ShowImageAsync: å›¾ç‰‡åˆ—è¡¨ä¸ºç©ºæˆ–ç´¢å¼•æ— æ•ˆï¼ŒimageIndex={imageIndex}, imagePaths.Count={imagePaths.Count}");
                     return;
                 }
                 pathToLoad = imagePaths[imageIndex];
@@ -281,7 +281,7 @@ namespace ImageMusicPlayer.Services
             var img = await LoadImageAsync(imageIndex);
             if (img == null)
             {
-                Debug.WriteLine($"ShowImageAsync: ¼ÓÔØÍ¼Æ¬Ê§°Ü£¬imageIndex={imageIndex}, ³¢ÊÔ¼ÓÔØÏÂÒ»ÕÅ");
+                Debug.WriteLine($"ShowImageAsync: åŠ è½½å›¾ç‰‡å¤±è´¥ï¼ŒimageIndex={imageIndex}, å°è¯•åŠ è½½ä¸‹ä¸€å¼ ");
                 int attempts = imagePaths.Count;
                 while (attempts-- > 0)
                 {
@@ -308,14 +308,14 @@ namespace ImageMusicPlayer.Services
             {
                 if (index < 0 || index >= imagePaths.Count)
                 {
-                    Debug.WriteLine($"LoadImageAsync: Ë÷ÒıÎŞĞ§£¬index={index}, imagePaths.Count={imagePaths.Count}");
+                    Debug.WriteLine($"LoadImageAsync: ç´¢å¼•æ— æ•ˆï¼Œindex={index}, imagePaths.Count={imagePaths.Count}");
                     return null;
                 }
                 filePath = imagePaths[index];
 
                 if (string.IsNullOrEmpty(filePath))
                 {
-                    Debug.WriteLine($"LoadImageAsync: Í¼Æ¬Â·¾¶Îª¿Õ£¬index={index}");
+                    Debug.WriteLine($"LoadImageAsync: å›¾ç‰‡è·¯å¾„ä¸ºç©ºï¼Œindex={index}");
                     return null;
                 }
 
@@ -348,7 +348,7 @@ namespace ImageMusicPlayer.Services
             }
             if (image == null)
             {
-                Debug.WriteLine($"LoadImageAsync: ÎŞ·¨¼ÓÔØÍ¼Æ¬: {filePath}£¬½«ÆäÒÆ³ı");
+                Debug.WriteLine($"LoadImageAsync: æ— æ³•åŠ è½½å›¾ç‰‡: {filePath}ï¼Œå°†å…¶ç§»é™¤");
                 lock (imagePathsLock)
                 {
                     if (index < imagePaths.Count && imagePaths[index].Equals(filePath, StringComparison.OrdinalIgnoreCase))
@@ -357,7 +357,7 @@ namespace ImageMusicPlayer.Services
                         var newCache = new Dictionary<int, Image>();
                         imageCache.Clear();
                         imageCache.Init(imagePaths);
-                        pageType = 0; // µ±Ç°Í¼Æ¬
+                        pageType = 0; // å½“å‰å›¾ç‰‡
                         if (imagePaths.Count == 0)
                         {
                             imageIndex = 0;
@@ -384,13 +384,13 @@ namespace ImageMusicPlayer.Services
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"IsImageValid: Í¼Æ¬ÎŞĞ§£¬´íÎó: {ex.Message}");
+                Debug.WriteLine($"IsImageValid: å›¾ç‰‡æ— æ•ˆï¼Œé”™è¯¯: {ex.Message}");
                 return false;
             }
         }
 
         /// <summary>
-        /// ¼ÓÔØÍ¼Æ¬Ê±½øĞĞÏÂ²ÉÑù´¦Àí£ºÈç¹ûÍ¼Æ¬³ß´ç³¬¹ıÔ¤ÉèãĞÖµ£¨Èç1920ÏñËØ£©£¬ÔòÉú³ÉÒ»¸öËõĞ¡°æÒÔÌá¸ßÏÔÊ¾ĞÔÄÜ
+        /// åŠ è½½å›¾ç‰‡æ—¶è¿›è¡Œä¸‹é‡‡æ ·å¤„ç†ï¼šå¦‚æœå›¾ç‰‡å°ºå¯¸è¶…è¿‡é¢„è®¾é˜ˆå€¼ï¼ˆå¦‚1920åƒç´ ï¼‰ï¼Œåˆ™ç”Ÿæˆä¸€ä¸ªç¼©å°ç‰ˆä»¥æé«˜æ˜¾ç¤ºæ€§èƒ½
         /// </summary>
         private static CachedImage LoadImageFromFile(string filePath)
         {
@@ -405,7 +405,7 @@ namespace ImageMusicPlayer.Services
                         using (MemoryStream msCopy = new MemoryStream(imageData))
                         {
                             Image originalImage = Image.FromStream(msCopy);
-                            // Éè¶¨×î´ó³ß´ç£¬ÀıÈç 1920 ÏñËØ£¨¸ù¾İÊµ¼ÊÇé¿öµ÷Õû£©
+                            // è®¾å®šæœ€å¤§å°ºå¯¸ï¼Œä¾‹å¦‚ 1920 åƒç´ ï¼ˆæ ¹æ®å®é™…æƒ…å†µè°ƒæ•´ï¼‰
                             int maxDimension = 1920;
                             if (originalImage.Width > maxDimension || originalImage.Height > maxDimension)
                             {
@@ -423,7 +423,7 @@ namespace ImageMusicPlayer.Services
                             }
                             else
                             {
-                                // Èç¹ûÍ¼Æ¬³ß´ç²»´ó£¬Ö±½Ó·µ»ØÈ«·Ö±æÂÊ Bitmap
+                                // å¦‚æœå›¾ç‰‡å°ºå¯¸ä¸å¤§ï¼Œç›´æ¥è¿”å›å…¨åˆ†è¾¨ç‡ Bitmap
                                 return new CachedImage(filePath, new Bitmap(originalImage));
                             }
                         }
@@ -432,7 +432,7 @@ namespace ImageMusicPlayer.Services
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"¼ÓÔØÍ¼Æ¬Ê§°Ü: {filePath}, ´íÎó: {ex.Message}");
+                Debug.WriteLine($"åŠ è½½å›¾ç‰‡å¤±è´¥: {filePath}, é”™è¯¯: {ex.Message}");
                 return null;
             }
         }
@@ -444,7 +444,7 @@ namespace ImageMusicPlayer.Services
 
         #endregion
 
-        #region Í¼Æ¬ä¯ÀÀ²Ù×÷
+        #region å›¾ç‰‡æµè§ˆæ“ä½œ
 
         public void NextImage()
         {
@@ -453,29 +453,29 @@ namespace ImageMusicPlayer.Services
 
         private async Task NextImageAsync()
         {
-            // Èç¹ûÒÑÓĞ¼ÓÔØÔÚ½øĞĞ£¬Ö±½ÓºöÂÔ±¾´ÎÇëÇó
+            // å¦‚æœå·²æœ‰åŠ è½½åœ¨è¿›è¡Œï¼Œç›´æ¥å¿½ç•¥æœ¬æ¬¡è¯·æ±‚
             if (!switchSemaphore.Wait(0))
             {
-                Debug.WriteLine("NextImage: Í¼Æ¬¼ÓÔØ½øĞĞÖĞ£¬ºöÂÔ±¾´ÎÇĞ»»ÇëÇó");
+                Debug.WriteLine("NextImage: å›¾ç‰‡åŠ è½½è¿›è¡Œä¸­ï¼Œå¿½ç•¥æœ¬æ¬¡åˆ‡æ¢è¯·æ±‚");
                 return;
             }
             try
             {
                 if (imagePaths.Count == 0)
                 {
-                    Debug.WriteLine("NextImage: Í¼Æ¬ÁĞ±íÎª¿Õ");
+                    Debug.WriteLine("NextImage: å›¾ç‰‡åˆ—è¡¨ä¸ºç©º");
                     return;
                 }
-                // ¸üĞÂÄ¿±êË÷Òı
+                // æ›´æ–°ç›®æ ‡ç´¢å¼•
                 targetIndex = (targetIndex + 1) % imagePaths.Count;
                 if ((DateTime.Now - lastSwitchTime).TotalMilliseconds < SwitchDebounceMs)
                 {
-                    Debug.WriteLine($"NextImage: ·À¶¶ÖĞ£¬targetIndex={targetIndex}");
+                    Debug.WriteLine($"NextImage: é˜²æŠ–ä¸­ï¼ŒtargetIndex={targetIndex}");
                     return;
                 }
                 imageIndex = targetIndex;
                 lastSwitchTime = DateTime.Now;
-                // Ö»ÓĞ¼ÓÔØÍêµ±Ç°Í¼Æ¬£¬²ÅÔÊĞíÏÂÒ»´ÎÇĞ»»
+                // åªæœ‰åŠ è½½å®Œå½“å‰å›¾ç‰‡ï¼Œæ‰å…è®¸ä¸‹ä¸€æ¬¡åˆ‡æ¢
                 await ShowImageAsync();
             }
             finally
@@ -493,20 +493,20 @@ namespace ImageMusicPlayer.Services
         {
             if (!switchSemaphore.Wait(0))
             {
-                Debug.WriteLine("PreviousImage: Í¼Æ¬¼ÓÔØ½øĞĞÖĞ£¬ºöÂÔ±¾´ÎÇĞ»»ÇëÇó");
+                Debug.WriteLine("PreviousImage: å›¾ç‰‡åŠ è½½è¿›è¡Œä¸­ï¼Œå¿½ç•¥æœ¬æ¬¡åˆ‡æ¢è¯·æ±‚");
                 return;
             }
             try
             {
                 if (imagePaths.Count == 0)
                 {
-                    Debug.WriteLine("PreviousImage: Í¼Æ¬ÁĞ±íÎª¿Õ");
+                    Debug.WriteLine("PreviousImage: å›¾ç‰‡åˆ—è¡¨ä¸ºç©º");
                     return;
                 }
                 targetIndex = (targetIndex - 1 + imagePaths.Count) % imagePaths.Count;
                 if ((DateTime.Now - lastSwitchTime).TotalMilliseconds < SwitchDebounceMs)
                 {
-                    Debug.WriteLine($"PreviousImage: ·À¶¶ÖĞ£¬targetIndex={targetIndex}");
+                    Debug.WriteLine($"PreviousImage: é˜²æŠ–ä¸­ï¼ŒtargetIndex={targetIndex}");
                     return;
                 }
                 imageIndex = targetIndex;
@@ -553,10 +553,10 @@ namespace ImageMusicPlayer.Services
 
         #endregion
 
-        #region »ÃµÆÆ¬²¥·Å
+        #region å¹»ç¯ç‰‡æ’­æ”¾
 
         /// <summary>
-        /// Æô¶¯»ÃµÆÆ¬²¥·Å£¬Ê¹ÓÃ¶¯Ì¬ÑÓÊ±²ÎÊı£¨Í¨¹ıÎ¯ÍĞ»ñÈ¡×îĞÂÑÓÊ±Öµ£©
+        /// å¯åŠ¨å¹»ç¯ç‰‡æ’­æ”¾ï¼Œä½¿ç”¨åŠ¨æ€å»¶æ—¶å‚æ•°ï¼ˆé€šè¿‡å§”æ‰˜è·å–æœ€æ–°å»¶æ—¶å€¼ï¼‰
         /// </summary>
         public async Task StartSlideShowAsync(Func<int> getDelay)
         {
@@ -574,12 +574,12 @@ namespace ImageMusicPlayer.Services
             }
             catch (TaskCanceledException)
             {
-                // ºöÂÔÈ¡ÏûÒì³£
+                // å¿½ç•¥å–æ¶ˆå¼‚å¸¸
             }
         }
 
         /// <summary>
-        /// ÔİÍ£»ÃµÆÆ¬²¥·Å
+        /// æš‚åœå¹»ç¯ç‰‡æ’­æ”¾
         /// </summary>
         public void PauseSlideShow()
         {

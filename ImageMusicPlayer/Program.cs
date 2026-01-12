@@ -12,9 +12,9 @@ namespace ImageMusicPlayer
         {
             ApplicationConfiguration.Initialize();
 
-            // ÅäÖÃ DI ÈİÆ÷
+            // é…ç½® DI å®¹å™¨
             IServiceProvider serviceProvider = Startup.ConfigureServices();
-            // »ñÈ¡ MainForm ÊµÀı²¢ÔËĞĞ
+            // è·å– MainForm å®ä¾‹å¹¶è¿è¡Œ
             MainForm mainForm = serviceProvider.GetRequiredService<MainForm>();
             
             Application.Run(mainForm);

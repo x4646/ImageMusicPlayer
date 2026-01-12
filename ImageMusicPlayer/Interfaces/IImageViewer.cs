@@ -4,23 +4,23 @@ using System.Drawing;
 public interface IImageViewer
 {
     /// <summary>
-    /// »ñÈ¡»òÉèÖÃËõ·Å±ÈÀı
+    /// è·å–æˆ–è®¾ç½®ç¼©æ”¾æ¯”ä¾‹
     /// </summary>
     float Zoom { get; }
 
     /// <summary>
-    /// ¼ÓÔØÍ¼Ïñ
+    /// åŠ è½½å›¾åƒ
     /// </summary>
-    /// <param name="img">Òª¼ÓÔØµÄÍ¼Ïñ</param>
+    /// <param name="img">è¦åŠ è½½çš„å›¾åƒ</param>
     void LoadImage(Image? img);
 
     /// <summary>
-    /// ÖØÖÃÊÓÍ¼
+    /// é‡ç½®è§†å›¾
     /// </summary>
     void ResetView();
 
     /// <summary>
-    /// Ëõ·Å±ÈÀı¸Ä±äÊÂ¼ş
+    /// ç¼©æ”¾æ¯”ä¾‹æ”¹å˜äº‹ä»¶
     /// </summary>
     event EventHandler ZoomChanged;
 }

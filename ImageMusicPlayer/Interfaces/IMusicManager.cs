@@ -5,49 +5,49 @@ using System.Threading.Tasks;
 namespace ImageMusicPlayer.Interfaces
 {
     /// <summary>
-    /// ÒôÀÖ¹ÜÀíÆ÷½Ó¿Ú
+    /// éŸ³ä¹ç®¡ç†å™¨æŽ¥å£
     /// </summary>
     public interface IMusicManager
     {
         /// <summary>
-        /// ËùÓÐµ¼ÈëµÄÒôÀÖÎÄ¼þ
+        /// æ‰€æœ‰å¯¼å…¥çš„éŸ³ä¹æ–‡ä»¶
         /// </summary>
         List<MusicItem> AllMusic { get; }
 
         /// <summary>
-        /// °´ÎÄ¼þ¼Ð·Ö×é£¬¶¯Ì¬Éú³É×Öµä
+        /// æŒ‰æ–‡ä»¶å¤¹åˆ†ç»„ï¼ŒåŠ¨æ€ç”Ÿæˆå­—å…¸
         /// </summary>
         Dictionary<string, List<MusicItem>> MusicByFolder { get; }
 
         /// <summary>
-        /// É¨ÃèÖ¸¶¨ÎÄ¼þ¼Ð£¨°üÀ¨×ÓÎÄ¼þ¼Ð£©£¬µ¼ÈëÒôÀÖÎÄ¼þ£¨MP3, WAV, WMA£©
+        /// æ‰«ææŒ‡å®šæ–‡ä»¶å¤¹ï¼ˆåŒ…æ‹¬å­æ–‡ä»¶å¤¹ï¼‰ï¼Œå¯¼å…¥éŸ³ä¹æ–‡ä»¶ï¼ˆMP3, WAV, WMAï¼‰
         /// </summary>
-        /// <param name="folderPath">ÎÄ¼þ¼ÐÂ·¾¶</param>
-        /// <returns>Òì²½ÈÎÎñ</returns>
+        /// <param name="folderPath">æ–‡ä»¶å¤¹è·¯å¾„</param>
+        /// <returns>å¼‚æ­¥ä»»åŠ¡</returns>
         Task ImportMusicFromFolderAsync(string folderPath);
 
         /// <summary>
-        /// ·µ»ØÖ¸¶¨ÎÄ¼þ¼Ð£¨°üÀ¨×ÓÎÄ¼þ¼Ð£©ÏÂµÄËùÓÐÒôÀÖ
+        /// è¿”å›žæŒ‡å®šæ–‡ä»¶å¤¹ï¼ˆåŒ…æ‹¬å­æ–‡ä»¶å¤¹ï¼‰ä¸‹çš„æ‰€æœ‰éŸ³ä¹
         /// </summary>
-        /// <param name="folderPath">ÎÄ¼þ¼ÐÂ·¾¶</param>
-        /// <returns>ÒôÀÖÁÐ±í</returns>
+        /// <param name="folderPath">æ–‡ä»¶å¤¹è·¯å¾„</param>
+        /// <returns>éŸ³ä¹åˆ—è¡¨</returns>
         List<MusicItem> GetMusicByFolder(string folderPath);
 
         /// <summary>
-        /// É¾³ýÖ¸¶¨Â·¾¶µÄÒôÀÖÏî¡£
+        /// åˆ é™¤æŒ‡å®šè·¯å¾„çš„éŸ³ä¹é¡¹ã€‚
         /// </summary>
-        /// <param name="musicPath">ÒôÀÖÎÄ¼þÂ·¾¶</param>
+        /// <param name="musicPath">éŸ³ä¹æ–‡ä»¶è·¯å¾„</param>
         void DeleteMusic(string musicPath);
 
         /// <summary>
-        /// ¸ù¾Ý¹Ø¼ü´ÊÔÚËùÓÐÒôÀÖÖÐËÑË÷Æ¥ÅäÏî¡£
+        /// æ ¹æ®å…³é”®è¯åœ¨æ‰€æœ‰éŸ³ä¹ä¸­æœç´¢åŒ¹é…é¡¹ã€‚
         /// </summary>
-        /// <param name="keyword">¹Ø¼ü´Ê</param>
-        /// <returns>Æ¥ÅäµÄÒôÀÖÏîÁÐ±í</returns>
+        /// <param name="keyword">å…³é”®è¯</param>
+        /// <returns>åŒ¹é…çš„éŸ³ä¹é¡¹åˆ—è¡¨</returns>
         List<MusicItem> Search(string keyword);
 
         /// <summary>
-        /// Ë¢ÐÂÒôÀÖÁÐ±í£¬ÀýÈçÖØÐÂÉ¨ÃèÎÄ¼þ¼Ð¡£
+        /// åˆ·æ–°éŸ³ä¹åˆ—è¡¨ï¼Œä¾‹å¦‚é‡æ–°æ‰«ææ–‡ä»¶å¤¹ã€‚
         /// </summary>
         void RefreshLibrary();
 

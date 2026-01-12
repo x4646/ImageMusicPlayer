@@ -1,4 +1,4 @@
-﻿namespace ImageMusicPlayer
+namespace ImageMusicPlayer
 {
     partial class MainForm
     {

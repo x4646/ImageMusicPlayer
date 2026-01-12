@@ -1,4 +1,4 @@
-﻿namespace ImageMusicPlayer.Models
+namespace ImageMusicPlayer.Models
 {
     public enum FavoriteType
     {

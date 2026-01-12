@@ -5,53 +5,53 @@ using System.Collections.Generic;
 namespace ImageMusicPlayer.Interfaces
 {
     /// <summary>
-    /// ÊÕ²Ø¼Ğ¹ÜÀíÆ÷½Ó¿Ú
+    /// æ”¶è—å¤¹ç®¡ç†å™¨æ¥å£
     /// </summary>
     public interface IFavoriteManager
     {
         /// <summary>
-        /// ÊÕ²Ø¼Ğ·¢Éú¸Ä±äÊ±µÄÊÂ¼ş
+        /// æ”¶è—å¤¹å‘ç”Ÿæ”¹å˜æ—¶çš„äº‹ä»¶
         /// </summary>
         event EventHandler FavoritesChanged;
 
         /// <summary>
-        /// »ñÈ¡ÊÕ²Ø¼ĞÁĞ±í
+        /// è·å–æ”¶è—å¤¹åˆ—è¡¨
         /// </summary>
         IReadOnlyList<FavoriteItem> Favorites { get; }
 
         /// <summary>
-        /// ¼ÓÔØÊÕ²Ø¼Ğ
+        /// åŠ è½½æ”¶è—å¤¹
         /// </summary>
         void LoadFavorites();
 
         /// <summary>
-        /// ±£´æÊÕ²Ø¼Ğ
+        /// ä¿å­˜æ”¶è—å¤¹
         /// </summary>
         void SaveFavorites();
 
         /// <summary>
-        /// Ìí¼ÓÎÄ¼ş¼ĞÊÕ²Ø
+        /// æ·»åŠ æ–‡ä»¶å¤¹æ”¶è—
         /// </summary>
-        /// <param name="folderPath">ÎÄ¼ş¼ĞÂ·¾¶</param>
+        /// <param name="folderPath">æ–‡ä»¶å¤¹è·¯å¾„</param>
         void AddFolderFavorite(string folderPath);
 
         /// <summary>
-        /// Ìí¼ÓÍ¼Æ¬ÊÕ²Ø
+        /// æ·»åŠ å›¾ç‰‡æ”¶è—
         /// </summary>
-        /// <param name="imagePath">Í¼Æ¬Â·¾¶</param>
+        /// <param name="imagePath">å›¾ç‰‡è·¯å¾„</param>
         void AddImageFavorite(string imagePath);
 
         /// <summary>
-        /// ÒÆ³ıÊÕ²Ø
+        /// ç§»é™¤æ”¶è—
         /// </summary>
-        /// <param name="item">ÒªÒÆ³ıµÄÊÕ²ØÏî</param>
+        /// <param name="item">è¦ç§»é™¤çš„æ”¶è—é¡¹</param>
         void RemoveFavorite(FavoriteItem item);
 
         /// <summary>
-        /// ÒÆ³ıÊÕ²Ø
+        /// ç§»é™¤æ”¶è—
         /// </summary>
-        /// <param name="path">Â·¾¶</param>
-        /// <param name="type">ÀàĞÍ</param>
+        /// <param name="path">è·¯å¾„</param>
+        /// <param name="type">ç±»å‹</param>
         void RemoveFavorite(string path, FavoriteType type);
     }
 }

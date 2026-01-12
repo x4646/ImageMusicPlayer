@@ -6,41 +6,41 @@ namespace ImageMusicPlayer.Interfaces
 {
 
     /// <summary>
-    /// ���ֿ�����ӿڣ����ڼ��ء��������ֿ�ṹ���ļ��й�����
+    /// 音乐库管理接口，用于加载、保存音乐库结构及文件夹管理。
     /// </summary>
     public interface IMusicLibraryManager
     {
         /// <summary>
-        /// ��ȡ���������ֿ�ĸ��ļ����б���
+        /// 获取或设置音乐库的根文件夹列表。
         /// </summary>
         List<MusicFolderNode> RootFolders { get; }
 
         /// <summary>
-        /// �������ֿ⡣
+        /// 加载音乐库。
         /// </summary>
         void LoadLibrary();
 
         /// <summary>
-        /// �������ֿ⡣
+        /// 保存音乐库。
         /// </summary>
         void SaveLibrary();
 
         /// <summary>
-        /// �����ļ��е����ֿ⡣
+        /// 添加文件夹到音乐库。
         /// </summary>
-        /// <param name="folderPath">�ļ���·����</param>
+        /// <param name="folderPath">文件夹路径。</param>
         void AddFolder(string folderPath);
 
         /// <summary>
-        /// �����ֿ����Ƴ��ļ��С�
+        /// 从音乐库中移除文件夹。
         /// </summary>
-        /// <param name="folderFullPath">�ļ�������·����</param>
+        /// <param name="folderFullPath">文件夹完整路径。</param>
         void RemoveFolder(string folderFullPath);
 
         /// <summary>
-        /// ��ȡ���������ļ���
+        /// 获取所有音乐文件。
         /// </summary>
-        /// <returns>�����ļ��б���</returns>
+        /// <returns>音乐文件列表。</returns>
         List<string> GetAllMusicFiles();
 
     }

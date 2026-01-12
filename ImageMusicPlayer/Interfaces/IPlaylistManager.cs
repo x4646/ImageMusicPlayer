@@ -3,57 +3,57 @@ using System.Collections.Generic;
 namespace ImageMusicPlayer.Interfaces
 {
     /// <summary>
-    /// �����б������ӿڣ�֧�ֲ����б��ļ��ء����桢��ɾ����Ȳ�����
+    /// 播放列表管理接口，支持播放列表的加载、保存、增删清除等操作。
     /// </summary>
     public interface IPlaylistManager
     {
         /// <summary>
-        /// ��ȡ��ǰ�����б���ֻ����ͼ��
+        /// 获取当前播放列表的只读视图。
         /// </summary>
         IReadOnlyList<string> Playlist { get; }
 
         /// <summary>
-        /// ���ز����б����ݡ�
+        /// 加载播放列表数据。
         /// </summary>
         void LoadPlaylist();
 
         /// <summary>
-        /// ���浱ǰ�����б����ݡ�
+        /// 保存当前播放列表数据。
         /// </summary>
         void SavePlaylist();
 
         /// <summary>
-        /// �򲥷��б�������һ�������ļ�·����
+        /// 向播放列表中添加一个音乐文件路径。
         /// </summary>
-        /// <param name="filePath">Ҫ���ӵ������ļ�·��</param>
+        /// <param name="filePath">要添加的音乐文件路径</param>
         void Add(string filePath);
 
         /// <summary>
-        /// �Ӳ����б����Ƴ�ָ��·���������ļ���
+        /// 从播放列表中移除指定路径的音乐文件。
         /// </summary>
-        /// <param name="filePath">Ҫ�Ƴ��������ļ�·��</param>
+        /// <param name="filePath">要移除的音乐文件路径</param>
         void Remove(string filePath);
 
         /// <summary>
-        /// ������������б���
+        /// 清空整个播放列表。
         /// </summary>
         void Clear();
         /// <summary>
-        /// �������Ӷ�������ļ��������б��С�
+        /// 批量添加多个音乐文件到播放列表中。
         /// </summary>
-        /// <param name="filePaths">��������ļ�·��</param>
+        /// <param name="filePaths">多个音乐文件路径</param>
         void AddRange(IEnumerable<string> filePaths);
 
         /// <summary>
-        /// �ж�ָ�������ļ��Ƿ����ڲ����б��С�
+        /// 判断指定音乐文件是否已在播放列表中。
         /// </summary>
-        /// <param name="filePath">�����ļ�·��</param>
+        /// <param name="filePath">音乐文件路径</param>
         bool Contains(string filePath);
 
         /// <summary>
-        /// ���������Ƴ������б��е��
+        /// 根据索引移除播放列表中的项。
         /// </summary>
-        /// <param name="index">����λ��</param>
+        /// <param name="index">索引位置</param>
         void RemoveAt(int index);
 
     }

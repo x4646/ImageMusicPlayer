@@ -1,4 +1,4 @@
-﻿using ImageMusicPlayer.Interfaces;
+using ImageMusicPlayer.Interfaces;
 using ImageMusicPlayer.Models;
 using System;
 using System.Collections.Generic;

@@ -1,48 +1,83 @@
 using ImageMusicPlayer.Models;
 
+/// <summary>
+/// å›¾ç‰‡ç¼“å­˜ç®¡ç†å™¨ï¼Œç”¨äºå®ç°æ»‘åŠ¨çª—å£å¼çš„å›¾ç‰‡ç¼“å­˜æœºåˆ¶ã€‚
+/// é€šè¿‡ LinkedList ç»´æŠ¤å½“å‰æ˜¾ç¤ºå›¾ç‰‡é™„è¿‘çš„ç¼“å­˜ï¼Œæ”¯æŒå‘å‰å’Œå‘åæµè§ˆå›¾ç‰‡æ—¶çš„åŠ¨æ€åŠ è½½å’Œé‡Šæ”¾ã€‚
+/// </summary>
+/// <remarks>
+/// è¯¥ç±»å®ç°äº†æ™ºèƒ½ç¼“å­˜ç­–ç•¥ï¼š
+/// - å‘å‰æµè§ˆæ—¶ï¼Œå‰æ–¹ç¼“å­˜å  3/4ï¼Œåæ–¹ç¼“å­˜å  1/4
+/// - å‘åæµè§ˆæ—¶ï¼Œåæ–¹ç¼“å­˜å  3/4ï¼Œå‰æ–¹ç¼“å­˜å  1/4
+/// - è‡ªåŠ¨ç®¡ç†å†…å­˜ï¼ŒåŠæ—¶é‡Šæ”¾ä¸éœ€è¦çš„å›¾ç‰‡èµ„æº
+/// </remarks>
 public class ImageCache
 {
-    // Êı¾İÔ´£ºÍâ²¿Í¼Æ¬¼¯ºÏ£¨±ÈÈç´Ó´ÅÅÌ¼ÓÔØºóÒÑ´æÔÚÄÚ´æÖĞ£©
+    // æ•°æ®æºï¼šå¤–éƒ¨å›¾ç‰‡é›†åˆï¼ˆæ¯”å¦‚ä»ç£ç›˜åŠ è½½åå·²å­˜åœ¨å†…å­˜ä¸­ï¼‰
     private IList<string> sourceCollection;
-    // »º´æ¹ÜÀí£ºÄÚ²¿Ê¹ÓÃ LinkedList ±£´æ»º´æ´°¿ÚÄÚµÄÍ¼Æ¬
+    
+    // ç¼“å­˜ç®¡ç†ï¼šå†…éƒ¨ä½¿ç”¨ LinkedList ä¿å­˜ç¼“å­˜çª—å£å†…çš„å›¾ç‰‡
     private LinkedList<CachedImage> cache = new LinkedList<CachedImage>();
-    // µ±Ç°ÏÔÊ¾µÄÍ¼Æ¬½Úµã
+    
+    // å½“å‰æ˜¾ç¤ºçš„å›¾ç‰‡èŠ‚ç‚¹
     private LinkedListNode<CachedImage> current;
-    // ÅäÖÃµÄ×Ü»º´æ³¤¶È£¨ÀıÈç15£©
+    
+    // é…ç½®çš„æ€»ç¼“å­˜é•¿åº¦ï¼ˆä¾‹å¦‚15ï¼‰
     private readonly int totalCacheSize;
-    // ¶¨Òå±ÈÀı£ºµ±ÍùÏÂÒ»ÕÅÊ±£¬Ç°·½£¨¼´Î´À´µÄÍ¼Æ¬£©Õ¼3/4£¬ºó·½Õ¼1/4£»·´Ö®£¬ÍùÉÏÒ»ÕÅÊ±£¬ºó·½Õ¼3/4£¬Ç°·½Õ¼1/4
-    private int forwardRatio;  // 3/4 µÄÊıÁ¿
-    private int backwardRatio; // 1/4 µÄÊıÁ¿
+    
+    // å®šä¹‰æ¯”ä¾‹ï¼šå½“å¾€ä¸‹ä¸€å¼ æ—¶ï¼Œå‰æ–¹ï¼ˆå³æœªæ¥çš„å›¾ç‰‡ï¼‰å 3/4ï¼Œåæ–¹å 1/4ï¼›åä¹‹ï¼Œå¾€ä¸Šä¸€å¼ æ—¶ï¼Œåæ–¹å 3/4ï¼Œå‰æ–¹å 1/4
+    private int forwardRatio;  // 3/4 çš„æ•°é‡
+    private int backwardRatio; // 1/4 çš„æ•°é‡
 
-    // Î¯ÍĞ£¬ÓÃÓÚ¸ù¾İË÷Òı´Ó sourceCollection ÖĞ»ñÈ¡Í¼Æ¬
+    // å§”æ‰˜ï¼Œç”¨äºæ ¹æ®ç´¢å¼•ä» sourceCollection ä¸­è·å–å›¾ç‰‡
     public Func<string, CachedImage> loadImageFunc;
-    // µ±Ç°ÔÚÊı¾İÔ´ÖĞµÄË÷Òı£¨¶ÔÓ¦ current ÔÚ¼¯ºÏÖĞµÄÎ»ÖÃ£©
+    
+    // å½“å‰åœ¨æ•°æ®æºä¸­çš„ç´¢å¼•ï¼ˆå¯¹åº” current åœ¨é›†åˆä¸­çš„ä½ç½®ï¼‰
     private int _currentIndex = 0;
 
+    /// <summary>
+    /// è·å–æˆ–è®¾ç½®å½“å‰æ•°æ®æºç´¢å¼•
+    /// </summary>
     public int CurrentSourceIndex { private get; set; }
 
-    // µ±Ç°»º´æÖĞµÄÍ¼Æ¬ÊıÁ¿
+    /// <summary>
+    /// è·å–å½“å‰ç¼“å­˜ä¸­çš„å›¾ç‰‡æ•°é‡
+    /// </summary>
     public int CurrentCachedSize => cache.Count;
 
+    /// <summary>
+    /// åˆå§‹åŒ– ImageCache ç±»çš„æ–°å®ä¾‹
+    /// </summary>
+    /// <param name="totalCacheSize">ç¼“å­˜å¤§å°ï¼Œå¦‚æœä¸º null æˆ–å°äº 15ï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€¼ 15</param>
     public ImageCache(int? totalCacheSize)
     {
-        // Èç¹ûÃ»ÓĞ´«Èë»º´æ´óĞ¡£¬ÔòÊ¹ÓÃÄ¬ÈÏÖµ
-        // Ä¬ÈÏ»º´æ´óĞ¡Îª 15
+        // å¦‚æœæ²¡æœ‰ä¼ å…¥ç¼“å­˜å¤§å°ï¼Œåˆ™ä½¿ç”¨é»˜è®¤å€¼
+        // é»˜è®¤ç¼“å­˜å¤§å°ä¸º 15
         if (totalCacheSize == null || totalCacheSize < 15)
             totalCacheSize = 15;
 
         this.totalCacheSize = totalCacheSize.Value;
     }
 
+    /// <summary>
+    /// åˆå§‹åŒ–ç¼“å­˜ï¼ŒåŠ è½½åˆå§‹å›¾ç‰‡é›†åˆ
+    /// </summary>
+    /// <param name="sourceCollection">å›¾ç‰‡è·¯å¾„é›†åˆ</param>
+    /// <remarks>
+    /// è¯¥æ–¹æ³•ä¼šï¼š
+    /// 1. æ¸…ç©ºç°æœ‰ç¼“å­˜
+    /// 2. è®¡ç®—å‘å‰å’Œå‘åç¼“å­˜æ¯”ä¾‹
+    /// 3. åŠ è½½åˆå§‹å›¾ç‰‡åˆ°ç¼“å­˜ä¸­
+    /// 4. è®¾ç½®å½“å‰å›¾ç‰‡ä¸ºç¬¬ä¸€å¼ 
+    /// </remarks>
     public void Init(IList<string> sourceCollection)
     {
         Clear();
-        // ³õÊ¼»¯£º¼ÙÉè³õÊ¼ÏÔÊ¾µÚÒ»ÕÅÍ¼Æ¬£¬¼ÓÔØ´Ó index=0 µ½ index=forwardRatio-1 µÄÍ¼Æ¬
+        // åˆå§‹åŒ–ï¼šå‡è®¾åˆå§‹æ˜¾ç¤ºç¬¬ä¸€å¼ å›¾ç‰‡ï¼ŒåŠ è½½ä» index=0 åˆ° index=forwardRatio-1 çš„å›¾ç‰‡
         _currentIndex = 0;
 
         this.sourceCollection = sourceCollection;
 
-        // ÀıÈç×Ü»º´æ15£¬ÍùÏÂÒ»ÕÅÊ±Ç°·½ÊıÁ¿ = 15*3/4 = 11(ÏòÉÏÈ¡Õû)£¬ºó·½ÊıÁ¿ = 4
+        // ä¾‹å¦‚æ€»ç¼“å­˜15ï¼Œå¾€ä¸‹ä¸€å¼ æ—¶å‰æ–¹æ•°é‡ = 15*3/4 = 11(å‘ä¸Šå–æ•´)ï¼Œåæ–¹æ•°é‡ = 4
         forwardRatio = (int)Math.Ceiling(totalCacheSize * 0.75);
         backwardRatio = totalCacheSize - forwardRatio;
 
@@ -55,16 +90,34 @@ public class ImageCache
         current = cache.First;
     }
 
+    /// <summary>
+    /// æ ¹æ®ç´¢å¼•è·å–å›¾ç‰‡è·¯å¾„
+    /// </summary>
+    /// <param name="index">å›¾ç‰‡ç´¢å¼•</param>
+    /// <returns>å›¾ç‰‡è·¯å¾„</returns>
+    /// <exception cref="ArgumentOutOfRangeException">å½“ç´¢å¼•è¶…å‡ºèŒƒå›´æ—¶æŠ›å‡º</exception>
     private string GetImagePath(int index)
     {
         if (index < 0 || index >= sourceCollection.Count)
-            throw new ArgumentOutOfRangeException(nameof(index), "Ë÷Òı³¬³ö·¶Î§¡£");
+            throw new ArgumentOutOfRangeException(nameof(index), "ç´¢å¼•è¶…å‡ºèŒƒå›´ã€‚");
         return sourceCollection[index];
     }
 
-    // »ñÈ¡µ±Ç°Í¼Æ¬
+    /// <summary>
+    /// è·å–å½“å‰æ˜¾ç¤ºçš„å›¾ç‰‡
+    /// </summary>
+    /// <returns>å½“å‰ç¼“å­˜çš„å›¾ç‰‡å¯¹è±¡</returns>
     public CachedImage GetCurrent() => current.Value;
 
+    /// <summary>
+    /// æ¸…ç©ºç¼“å­˜å¹¶é‡Šæ”¾æ‰€æœ‰å›¾ç‰‡èµ„æº
+    /// </summary>
+    /// <remarks>
+    /// è¯¥æ–¹æ³•ä¼šï¼š
+    /// 1. é‡ç½®å½“å‰ç´¢å¼•
+    /// 2. é‡Šæ”¾æ‰€æœ‰ç¼“å­˜å›¾ç‰‡çš„èµ„æº
+    /// 3. æ¸…ç©ºç¼“å­˜åˆ—è¡¨
+    /// </remarks>
     public void Clear()
     {
 
@@ -75,11 +128,21 @@ public class ImageCache
         }
     }
 
-    // µ÷ÓÃ Next()£¬ÍùÇ°¶ÁÈ¡ÏÂÒ»ÕÅÍ¼Æ¬
+    /// <summary>
+    /// è·å–ä¸‹ä¸€å¼ å›¾ç‰‡ï¼Œå¹¶æ›´æ–°ç¼“å­˜çŠ¶æ€
+    /// </summary>
+    /// <returns>ä¸‹ä¸€å¼ å›¾ç‰‡å¯¹è±¡</returns>
+    /// <remarks>
+    /// è¯¥æ–¹æ³•å®ç°äº†æ™ºèƒ½ç¼“å­˜ç®¡ç†ï¼š
+    /// 1. æ›´æ–°å½“å‰ç´¢å¼•ï¼ˆæ”¯æŒå¾ªç¯æµè§ˆï¼‰
+    /// 2. ç§»åŠ¨å½“å‰èŠ‚ç‚¹æˆ–åŠ è½½æ–°å›¾ç‰‡
+    /// 3. è°ƒæ•´ç¼“å­˜çª—å£å¤§å°ï¼Œä¿æŒåˆé€‚çš„ç¼“å­˜æ¯”ä¾‹
+    /// 4. åŠæ—¶é‡Šæ”¾ä¸éœ€è¦çš„å›¾ç‰‡èµ„æº
+    /// </remarks>
     public CachedImage Next()
     {
-        Console.WriteLine("¶ÁÈ¡ÏÂÒ»ÕÅÍ¼Æ¬...");
-        // ¸üĞÂÊı¾İÔ´Ë÷Òı
+        Console.WriteLine("è¯»å–ä¸‹ä¸€å¼ å›¾ç‰‡...");
+        // æ›´æ–°æ•°æ®æºç´¢å¼•
         if (_currentIndex < sourceCollection.Count - 1)
         {
             _currentIndex++;
@@ -90,7 +153,7 @@ public class ImageCache
         }
 
 
-        // Èç¹ûµ±Ç°»º´æÖĞÓĞÏÂÒ»½Úµã£¬ÔòÒÆ¶¯£¬·ñÔò³¢ÊÔ´ÓÊı¾İÔ´¼ÓÔØ
+        // å¦‚æœå½“å‰ç¼“å­˜ä¸­æœ‰ä¸‹ä¸€èŠ‚ç‚¹ï¼Œåˆ™ç§»åŠ¨ï¼Œå¦åˆ™å°è¯•ä»æ•°æ®æºåŠ è½½
         if (current.Next != null)
         {
             current = current.Next;
@@ -99,7 +162,7 @@ public class ImageCache
         {
             if (CurrentSourceIndex < sourceCollection.Count - 1)
             {
-                // µ±Ç°´¦ÓÚ»º´æÄ©Î²£¬´ÓÊı¾İÔ´¼ÓÔØÏÂÒ»ÕÅÍ¼Æ¬
+                // å½“å‰å¤„äºç¼“å­˜æœ«å°¾ï¼Œä»æ•°æ®æºåŠ è½½ä¸‹ä¸€å¼ å›¾ç‰‡
                 var img = loadImageFunc(GetImagePath(_currentIndex));
                 cache.AddLast(img);
                 current = current.Next;
@@ -107,14 +170,14 @@ public class ImageCache
         }
 
 
-        // µ÷Õû»º´æ´°¿Ú£ºÔÚ¡°ÍùÏÂÒ»ÕÅ¡±Ä£Ê½ÏÂ£¬ÆÚÍûºó·½£¨Î´À´Í¼Æ¬£©ÊıÁ¿Îª forwardRatio£¨°üº¬µ±Ç°£©£¬Ç°·½£¨ÒÑ¶ÁÍ¼Æ¬£©ÊıÁ¿Îª backwardRatio
-        // ±£Ö¤µ±Ç°½Úµãµ½Ä©Î²²»ÉÙÓÚ forwardRatio
+        // è°ƒæ•´ç¼“å­˜çª—å£ï¼šåœ¨"å¾€ä¸‹ä¸€å¼ "æ¨¡å¼ä¸‹ï¼ŒæœŸæœ›åæ–¹ï¼ˆæœªæ¥å›¾ç‰‡ï¼‰æ•°é‡ä¸º forwardRatioï¼ˆåŒ…å«å½“å‰ï¼‰ï¼Œå‰æ–¹ï¼ˆå·²è¯»å›¾ç‰‡ï¼‰æ•°é‡ä¸º backwardRatio
+        // ä¿è¯å½“å‰èŠ‚ç‚¹åˆ°æœ«å°¾ä¸å°‘äº forwardRatio
         while (CountFromCurrent() < forwardRatio && _currentIndex < sourceCollection.Count - 1)
         {
             _currentIndex++;
             cache.AddLast(loadImageFunc(GetImagePath(_currentIndex)));
         }
-        // Èç¹ûµ±Ç°½ÚµãÖ®Ç°³¬¹ı backwardRatio£¬Ôò´ÓÍ·²¿É¾³ı¶àÓàÍ¼Æ¬²¢ÊÍ·Å×ÊÔ´
+        // å¦‚æœå½“å‰èŠ‚ç‚¹ä¹‹å‰è¶…è¿‡ backwardRatioï¼Œåˆ™ä»å¤´éƒ¨åˆ é™¤å¤šä½™å›¾ç‰‡å¹¶é‡Šæ”¾èµ„æº
         while (CountBeforeCurrent() > backwardRatio)
         {
             var first = cache.First;
@@ -125,10 +188,20 @@ public class ImageCache
 
     }
 
-    // µ÷ÓÃ Previous()£¬Íùºó¶ÁÈ¡ÉÏÒ»ÕÅÍ¼Æ¬
+    /// <summary>
+    /// è·å–ä¸Šä¸€å¼ å›¾ç‰‡ï¼Œå¹¶æ›´æ–°ç¼“å­˜çŠ¶æ€
+    /// </summary>
+    /// <returns>ä¸Šä¸€å¼ å›¾ç‰‡å¯¹è±¡</returns>
+    /// <remarks>
+    /// è¯¥æ–¹æ³•å®ç°äº†æ™ºèƒ½ç¼“å­˜ç®¡ç†ï¼š
+    /// 1. ç§»åŠ¨å½“å‰èŠ‚ç‚¹æˆ–åŠ è½½æ–°å›¾ç‰‡
+    /// 2. è°ƒæ•´ç¼“å­˜çª—å£å¤§å°ï¼Œä¿æŒåˆé€‚çš„ç¼“å­˜æ¯”ä¾‹
+    /// 3. åŠæ—¶é‡Šæ”¾ä¸éœ€è¦çš„å›¾ç‰‡èµ„æº
+    /// 4. æ”¯æŒå‘åæµè§ˆæ—¶çš„ç¼“å­˜ä¼˜åŒ–
+    /// </remarks>
     public CachedImage Previous()
     {
-        Console.WriteLine("¶ÁÈ¡ÉÏÒ»ÕÅÍ¼Æ¬...");
+        Console.WriteLine("è¯»å–ä¸Šä¸€å¼ å›¾ç‰‡...");
         if (current.Previous != null)
         {
             current = current.Previous;
@@ -136,7 +209,7 @@ public class ImageCache
         }
         else
         {
-            // Èç¹ûÒÑ¾­ÔÚ»º´æ×îÇ°¶Ë£¬µ«Êı¾İÔ´ÖĞÈÔÓĞ¸üÔçµÄÍ¼Æ¬£¬¿ÉÒÔ¼ÓÔØĞÂµÄÍ¼Æ¬µ½Í·²¿
+            // å¦‚æœå·²ç»åœ¨ç¼“å­˜æœ€å‰ç«¯ï¼Œä½†æ•°æ®æºä¸­ä»æœ‰æ›´æ—©çš„å›¾ç‰‡ï¼Œå¯ä»¥åŠ è½½æ–°çš„å›¾ç‰‡åˆ°å¤´éƒ¨
             if (_currentIndex > 0)
             {
                 _currentIndex--;
@@ -145,14 +218,14 @@ public class ImageCache
             }
             else
             {
-                Console.WriteLine("ÒÑ¾­ÊÇµÚÒ»ÕÅÍ¼Æ¬¡£");
+                Console.WriteLine("å·²ç»æ˜¯ç¬¬ä¸€å¼ å›¾ç‰‡ã€‚");
             }
         }
 
         if (CurrentSourceIndex > 0)
         {
 
-            // ÔÚ¡°ÍùÉÏÒ»ÕÅ¡±Ä£Ê½ÏÂ£¬ÆÚÍûÇ°·½£¨ÒÑ¶ÁÍ¼Æ¬£©ÊıÁ¿Îª forwardRatio£¨°üº¬µ±Ç°£©£¬ºó·½ÊıÁ¿Îª backwardRatio
+            // åœ¨"å¾€ä¸Šä¸€å¼ "æ¨¡å¼ä¸‹ï¼ŒæœŸæœ›å‰æ–¹ï¼ˆå·²è¯»å›¾ç‰‡ï¼‰æ•°é‡ä¸º forwardRatioï¼ˆåŒ…å«å½“å‰ï¼‰ï¼Œåæ–¹æ•°é‡ä¸º backwardRatio
             while (CountBeforeCurrentIncludingCurrent() < forwardRatio && _currentIndex > 0)
             {
                 _currentIndex--;
@@ -168,7 +241,10 @@ public class ImageCache
         return current.Value;
     }
 
-    // ¼ÆËãµ±Ç°½ÚµãÖ®Ç°µÄ½ÚµãÊı£¨²»°üÀ¨µ±Ç°£©
+    /// <summary>
+    /// è®¡ç®—å½“å‰èŠ‚ç‚¹ä¹‹å‰çš„èŠ‚ç‚¹æ•°ï¼ˆä¸åŒ…æ‹¬å½“å‰ï¼‰
+    /// </summary>
+    /// <returns>å½“å‰èŠ‚ç‚¹ä¹‹å‰çš„èŠ‚ç‚¹æ•°é‡</returns>
     private int CountBeforeCurrent()
     {
         int count = 0;
@@ -181,10 +257,16 @@ public class ImageCache
         return count;
     }
 
-    // °üÀ¨µ±Ç°
+    /// <summary>
+    /// è®¡ç®—å½“å‰èŠ‚ç‚¹åŠä¹‹å‰çš„èŠ‚ç‚¹æ•°ï¼ˆåŒ…æ‹¬å½“å‰ï¼‰
+    /// </summary>
+    /// <returns>å½“å‰èŠ‚ç‚¹åŠä¹‹å‰çš„èŠ‚ç‚¹æ•°é‡</returns>
     private int CountBeforeCurrentIncludingCurrent() => CountBeforeCurrent() + 1;
 
-    // ¼ÆËã´Óµ±Ç°½Úµãµ½Ä©Î²µÄÊıÁ¿£¨°üÀ¨µ±Ç°£©
+    /// <summary>
+    /// è®¡ç®—ä»å½“å‰èŠ‚ç‚¹åˆ°æœ«å°¾çš„æ•°é‡ï¼ˆåŒ…æ‹¬å½“å‰ï¼‰
+    /// </summary>
+    /// <returns>ä»å½“å‰èŠ‚ç‚¹åˆ°æœ«å°¾çš„èŠ‚ç‚¹æ•°é‡</returns>
     private int CountFromCurrent()
     {
         int count = 0;
@@ -197,7 +279,10 @@ public class ImageCache
         return count;
     }
 
-    // ¼ÆËãµ±Ç°½ÚµãÖ®ºóµÄÊıÁ¿£¨²»°üÀ¨µ±Ç°£©
+    /// <summary>
+    /// è®¡ç®—å½“å‰èŠ‚ç‚¹ä¹‹åçš„æ•°é‡ï¼ˆä¸åŒ…æ‹¬å½“å‰ï¼‰
+    /// </summary>
+    /// <returns>å½“å‰èŠ‚ç‚¹ä¹‹åçš„èŠ‚ç‚¹æ•°é‡</returns>
     private int CountAfterCurrent()
     {
         int count = 0;
@@ -210,14 +295,20 @@ public class ImageCache
         return count;
     }
 
-    // ÓÃÓÚµ÷ÊÔ£¬´òÓ¡µ±Ç°»º´æ×´Ì¬
+    /// <summary>
+    /// ç”¨äºè°ƒè¯•ï¼Œæ‰“å°å½“å‰ç¼“å­˜çŠ¶æ€
+    /// </summary>
+    /// <remarks>
+    /// è¾“å‡ºæ ¼å¼ç¤ºä¾‹ï¼š[å½“å‰: image1.jpg] image2.jpg image3.jpg
+    /// å…¶ä¸­å½“å‰æ˜¾ç¤ºçš„å›¾ç‰‡ä¼šç”¨æ–¹æ‹¬å·æ ‡è®°
+    /// </remarks>
     public void PrintCacheState()
     {
-        Console.WriteLine("µ±Ç°»º´æ×´Ì¬£º");
+        Console.WriteLine("å½“å‰ç¼“å­˜çŠ¶æ€ï¼š");
         foreach (var img in cache)
         {
             if (img == current.Value)
-                Console.Write($"[µ±Ç°: {img.Name}] ");
+                Console.Write($"[å½“å‰: {img.Name}] ");
             else
                 Console.Write($"{img.Name} ");
         }
