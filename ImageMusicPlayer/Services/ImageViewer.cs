@@ -222,7 +222,7 @@ namespace ImageMusicPlayer
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.HighQuality;
 
-            // 交互时优先流畅度，停止后优先清晰度
+            // 缩放/拖拽交互时优先保证流畅度；停止后再用高质量插值保证清晰度
             bool isInteracting = isDragging || zoomTimer.Enabled;
             if (isInteracting)
             {
@@ -493,6 +493,7 @@ namespace ImageMusicPlayer
                 return;
 
             // 节流滚轮事件，避免过于频繁触发
+            if ((DateTime.Now - lastWheelEvent).TotalMilliseconds < 20)
             if ((DateTime.Now - lastWheelEvent).TotalMilliseconds < 20)
                 return;
             lastWheelEvent = DateTime.Now;
